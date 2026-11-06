@@ -24,6 +24,9 @@ public class DeepObjMemberGoToDecl extends Lang
 {
     private static It<? extends PsiElement> resolveMember(PhpClass cls, String name, FuncCtx funcCtx)
     {
+        if (name == null) {
+            return It.non();
+        }
         return list(
             It(cls.getFields()).flt(f -> f.getName().equals(name)),
             It(cls.getMethods()).flt(m -> m.getName().equals(name)),

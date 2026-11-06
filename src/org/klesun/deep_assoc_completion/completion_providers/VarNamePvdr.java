@@ -6,8 +6,9 @@ import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.diagnostic.ControlFlowException;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.impl.CoreProgressManager;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
@@ -76,7 +77,7 @@ public class VarNamePvdr extends CompletionProvider<CompletionParameters>
 
     private static It<Variable> getGlobalsMagicVarUsages(Project project)
     {
-        if (!CoreProgressManager.getInstance().hasProgressIndicator()) {
+        if (!ProgressManager.getInstance().hasProgressIndicator()) {
             return It.non(); // since 2022 ReferencesSearch only works in explicit actions having
                 // a progress indicator, like _ctrl+b_, whereas implicit actions like _ctrl+hover_
                 // would cause "Must be executed under progress indicator" errors shown to users
@@ -87,6 +88,9 @@ public class VarNamePvdr extends CompletionProvider<CompletionParameters>
                 .fap(ref -> opt(ref.getElement()))
                 .cst(Variable.class);
         } catch (Throwable exc) {
+            if (exc instanceof ControlFlowException) {
+                throw exc;
+            }
             // from my past experience with ReferencesSearch, it is
             // likely to throw random exceptions and cause random hangs...
             return It.non();

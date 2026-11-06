@@ -9,7 +9,7 @@ import com.jetbrains.php.lang.psi.elements.impl.BinaryExpressionImpl;
 import com.jetbrains.php.lang.psi.elements.impl.NewExpressionImpl;
 import com.jetbrains.php.lang.psi.elements.impl.TernaryExpressionImpl;
 import com.jetbrains.php.lang.psi.resolve.types.PhpType;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.klesun.lang.PhpStr;
 import org.klesun.deep_assoc_completion.structures.Build;
 import org.klesun.deep_assoc_completion.structures.DeepType;
 import org.klesun.deep_assoc_completion.contexts.IExprCtx;
@@ -218,7 +218,7 @@ public class MiscRes extends Lang
                         String unescaped = opt(Mt.getStringValueSt(lmt))
                             .fop(lstr -> opt(Mt.getStringValueSt(rmt))
                                 .map(rstr -> lstr + rstr))
-                            .map(ccted -> StringEscapeUtils.unescapeJava(ccted)) // PHP ~ java
+                            .map(ccted -> PhpStr.unescape(ccted))
                             .def(null);
                         DeepType type = new DeepType(bin, PhpType.STRING, unescaped);
                         return list(type);

@@ -1,5 +1,6 @@
 package org.klesun.deep_assoc_completion.contexts;
 
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
@@ -144,6 +145,7 @@ public class SearchCtx extends Lang
 
     public IIt<DeepType> findExprType(PhpExpression expr, ExprCtx exprCtx)
     {
+        ProgressManager.checkCanceled();
         currentExpr = som(exprCtx);
 
         long time = System.nanoTime();

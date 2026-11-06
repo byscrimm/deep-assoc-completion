@@ -32,14 +32,6 @@ public class MysqliRes
         this.ctx = ctx;
     }
 
-    private static It<String> getTableColumnsInRootLegacy(DasObject root, String table)
-    {
-        return It(root.getDbChildren(DasObject.class, ObjectKind.TABLE))
-            .flt(t -> t.getName().equals(table))
-            .fap(tab -> tab.getDbChildren(DasObject.class, ObjectKind.COLUMN))
-            .map(col -> col.getName());
-    }
-
     private static It<String> getTableColumnsInRoot(DasObject root, String table)
     {
         S<It<DasObject>> mysqlTables = () ->
@@ -60,10 +52,7 @@ public class MysqliRes
     {
         return It(DbPsiFacade.getInstance(project).getDataSources())
             .fap(src -> src.getModel().getModelRoots())
-            .fap(root -> It.frs(
-                () -> getTableColumnsInRootLegacy(root, table),
-                () -> getTableColumnsInRoot(root, table)
-            ));
+            .fap(root -> getTableColumnsInRoot(root, table));
     }
 
     public DeepType parseSqlSelect(DeepType strType, Project project)

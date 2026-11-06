@@ -17,7 +17,7 @@ import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl;
 import com.jetbrains.php.lang.psi.PhpElementType;
 import com.jetbrains.php.lang.psi.elements.*;
 import com.jetbrains.php.lang.psi.elements.impl.*;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.klesun.lang.PhpStr;
 import org.klesun.deep_assoc_completion.resolvers.ClosRes;
 import org.klesun.deep_assoc_completion.resolvers.FuncCallRes;
 import org.klesun.deep_assoc_completion.structures.ForEach;
@@ -327,7 +327,7 @@ public class TranspileToNodeJs extends AnAction
                         String content = typed.getContents();
                         return Tls.regex("\\/(.*[^\\\\])\\/([a-z]{0,3})", content)
                             .map(m -> "/" + m.get(0) + "/" + m.get(1)) // '/\s*/i' -> /\s*/i
-                            .def("'" + StringEscapeUtils.escapeJavaScript(typed.getContents()) + "'");
+                            .def("'" + PhpStr.escapeJs(typed.getContents()) + "'");
                     }
                 })
             , () -> Tls.cast(AssignmentExpression.class, psi)

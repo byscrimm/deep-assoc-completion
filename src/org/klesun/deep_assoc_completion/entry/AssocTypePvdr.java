@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.jetbrains.php.lang.parser.PhpElementTypes;
 import com.jetbrains.php.lang.psi.elements.*;
 import com.jetbrains.php.lang.psi.resolve.types.PhpType;
-import com.jetbrains.php.lang.psi.resolve.types.PhpTypeProvider3;
+import com.jetbrains.php.lang.psi.resolve.types.PhpTypeProvider4;
 import org.jetbrains.annotations.Nullable;
 import org.klesun.deep_assoc_completion.contexts.ExprCtx;
 import org.klesun.deep_assoc_completion.contexts.FuncCtx;
@@ -21,7 +21,7 @@ import org.klesun.lang.Tls;
 import java.util.Collection;
 import java.util.Set;
 
-public class AssocTypePvdr extends Lang implements PhpTypeProvider3
+public class AssocTypePvdr extends Lang implements PhpTypeProvider4
 {
     public char getKey()
     {
@@ -78,7 +78,7 @@ public class AssocTypePvdr extends Lang implements PhpTypeProvider3
         } catch (Throwable exc) {
             // throwing some exceptions further would cause class to become undefined
             L<Class> allowedExceptions = list(ControlFlowException.class);
-            if (allowedExceptions.any(excCls -> exc.getClass().isAssignableFrom(excCls))) {
+            if (allowedExceptions.any(excCls -> excCls.isInstance(exc))) {
                 throw exc;
             } else {
                 String msg = "Unexpected exception in deep-assoc-completion plugin - " + exc.getClass() + " while resolving " + psi.getText() + " " + psi.getClass() + " " + opt(psi.getContainingFile()).map(f -> f.getName()).def("(no file)") + " :" + psi.getTextOffset();
@@ -96,6 +96,12 @@ public class AssocTypePvdr extends Lang implements PhpTypeProvider3
         }
 
         return result;
+    }
+
+    @Nullable
+    @Override
+    public PhpType complete(String expression, Project project) {
+        return null;
     }
 
     // 2016.2.2

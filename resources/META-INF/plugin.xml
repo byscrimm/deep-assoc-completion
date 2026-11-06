@@ -1,7 +1,6 @@
 <idea-plugin>
     <id>lv.midiana.misc.phpstorm-plugins.deep-keys</id>
     <name>deep-assoc-completion</name>
-    <version>2022.08.03.001</version>
     <vendor email="arturklesun@gmail.com" url="https://klesun-productions.com/entry/deep-assoc-completion">klesun</vendor>
 
     <description><![CDATA[
@@ -54,7 +53,6 @@
     ]]>
     </change-notes>
 
-    <idea-version since-build="221.1.1"/> <!-- breaking changes in the IDE API related to progress indicator -->
 
     <extensions defaultExtensionNs="com.intellij">
         <completion.contributor order="first" language="PHP" implementationClass="org.klesun.deep_assoc_completion.entry.DirectTypeCompletionContributor"/>
@@ -77,7 +75,7 @@
 
     <extensions defaultExtensionNs="com.jetbrains.php">
         <typeProvider4 order="first" implementation="org.klesun.deep_assoc_completion.entry.MixedTypePvdr"/>
-        <typeProvider3 order="last" implementation="org.klesun.deep_assoc_completion.entry.AssocTypePvdr"/>
+        <typeProvider4 order="last" implementation="org.klesun.deep_assoc_completion.entry.AssocTypePvdr"/>
     </extensions>
 
 
@@ -89,6 +87,7 @@
 
     <!-- gonna implement array keys inference from SELECT * -->
     <depends>com.intellij.database</depends>
+    <depends>com.intellij.modules.json</depends>
     <depends optional="true" config-file="twig-wrapper.xml">com.jetbrains.twig</depends>
 
     <actions>

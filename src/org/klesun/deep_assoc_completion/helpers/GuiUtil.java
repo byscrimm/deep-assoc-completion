@@ -92,7 +92,8 @@ public class GuiUtil {
                 }
             });
         } catch (ProcessCanceledException exc) {
-            // happens when user interrupts completion resolution, ignore
+            // happens when user interrupts completion resolution
+            throw exc;
         } catch (Throwable exc) {
             if (isOurs.get()) {
                 throw exc;

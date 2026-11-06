@@ -29,7 +29,7 @@ public class DeepSettings implements PersistentStateComponent<DeepSettings> {
 
     public static DeepSettings inst(Project project) {
         return Opt.fst(
-            () -> opt(ServiceManager.getService(project, DeepSettings.class)),
+            () -> opt(project.getService(DeepSettings.class)),
             () -> som(new DeepSettings())
         ).unw();
     }

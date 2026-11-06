@@ -7,3 +7,6 @@
 /deep-assoc-completion.jar
 /deep-assoc-completion.iml
 /tests/unv
+/.gradle/
+/build/
+/.intellijPlatform/

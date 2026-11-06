@@ -3,6 +3,7 @@ package org.klesun.deep_assoc_completion.go_to_decl_providers;
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.jetbrains.php.lang.psi.elements.impl.StringLiteralExpressionImpl;
@@ -30,8 +31,15 @@ import static org.klesun.lang.Lang.opt;
  * for the second time, we perform complete search and return all values
  */
 public class MainGoToDecl implements GotoDeclarationHandler {
-    private Opt<PsiElement> lastCaretPsi = non();
-    private boolean lastFinished = true;
+    // handler is shared between background read actions, and PSI must not outlive them
+    private volatile String lastCaretKey = null;
+    private volatile boolean lastFinished = true;
+
+    private static String getCaretKey(PsiElement psi)
+    {
+        return opt(psi.getContainingFile()).map(f -> f.getName()).def("")
+            + ":" + psi.getTextOffset() + ":" + psi.getTextLength();
+    }
 
     private static boolean areSamePsi(@NotNull PsiElement declPsi, @NotNull PsiElement caretPsi)
     {
@@ -101,9 +109,15 @@ public class MainGoToDecl implements GotoDeclarationHandler {
     @Override
     public PsiElement[] getGotoDeclarationTargets(@Nullable PsiElement nullPsi, int mouseOffset, Editor editor)
     {
+        if (nullPsi == null || DumbService.isDumb(nullPsi.getProject())) {
+            // platform calls this handler in ignoreDumbMode(), but we rely on complete indexes
+            return null;
+        }
         Boolean prevFinished = lastFinished;
         lastFinished = false;
-        Boolean isSecondAttempt = lastCaretPsi.map(last -> last.equals(nullPsi)).def(false);
+        String caretKey = getCaretKey(nullPsi);
+        Boolean isSecondAttempt = caretKey.equals(lastCaretKey);
+        try {
         It<PsiElement> psiit = opt(nullPsi)
             .fap(psiElement -> {
                 SearchCtx search = new SearchCtx(psiElement.getProject())
@@ -114,9 +128,11 @@ public class MainGoToDecl implements GotoDeclarationHandler {
             });
         psiit = psiit.end((itpsi) -> !isSecondAttempt || !prevFinished).unq();
         L<PsiElement> arr = psiit.arr();
-        lastCaretPsi = opt(nullPsi);
-        lastFinished = true;
+        lastCaretKey = caretKey;
         return arr.toArray(new PsiElement[arr.size()]);
+        } finally {
+            lastFinished = true;
+        }
     }
 
     // need for pre-183.5153.4

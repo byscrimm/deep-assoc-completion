@@ -1,10 +1,9 @@
 package org.klesun.lang.testing;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
-import com.intellij.openapi.progress.util.ReadTask;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -128,17 +127,10 @@ public class Logger
 
     public void scheduleBg(Lang.S<? extends Iterable<Error>> process)
     {
-        ProgressIndicatorUtils.scheduleWithWriteActionPriority(new ReadTask() {
-            public void computeInReadAction(ProgressIndicator ind) {
-                logMsg("Searching for \"UnitTest\" class in project...");
-                Iterable<Error> msgs = process.get();
-                showResultPopup(msgs);
-                ind.stop();
-            }
-            public void onCanceled(@NotNull ProgressIndicator progressIndicator) {
-                logMsg("\nProcess cancelled");
-                updateBalloon();
-            }
-        });
+        ReadAction.nonBlocking(() -> {
+            logMsg("Searching for \"UnitTest\" class in project...");
+            Iterable<Error> msgs = process.get();
+            showResultPopup(msgs);
+        }).submit(AppExecutorUtil.getAppExecutorService());
     }
 }
